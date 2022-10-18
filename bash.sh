@@ -11,4 +11,4 @@ docker tag $ID ${IMAGE}:latest
 
 docker images | grep ${IMAGE}
 
-docker run --rm ${IMAGE}:latest python -version
+docker run -ti -p 8000:8000 --rm ${IMAGE}:latest 
