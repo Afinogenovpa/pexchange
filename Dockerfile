@@ -10,4 +10,4 @@ EXPOSE 8000:8000
 
 RUN pip install -r requirements.txt
 
-CMD [ "python", "app.py" ]
+CMD [ "python3", "main.py" ]
