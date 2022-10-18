@@ -1,13 +1,17 @@
+# 
 FROM python:3.9
 
-COPY . /src
+# 
+WORKDIR /code
 
-COPY ./requirements.txt /src/requirements.txt
+# 
+COPY ./requirements.txt /code/requirements.txt
 
-WORKDIR src
+# 
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-EXPOSE 8000:8000
+# 
+COPY ./app /code/app
 
-RUN pip install -r requirements.txt
-
-CMD [ "python3", "main.py" ]
+# 
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
