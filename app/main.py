@@ -1,7 +1,6 @@
 from ast import For
-from asyncio.proactor_events import _ProactorBaseWritePipeTransport
-from re import I
-from fastapi import Depends, FastAPI, HTTPException, Form, File, Form, UploadFile, Body
+from traceback import print_tb
+from fastapi import Depends, FastAPI, Form, Form, Body, UploadFile
 from sqlalchemy.orm import Session
 import uvicorn
 import models
@@ -9,7 +8,7 @@ import crud
 import schemas
 from datetime import datetime, timedelta
 from database import SessionLocal, engine
-from typing import Optional, Union
+from typing import List, Optional
 import uuid
 
 models.Base.metadata.create_all(bind=engine)
@@ -34,7 +33,7 @@ async def root():
     return {"message": "hello world"}
 
 
-@app.get("/data/", response_model=list[schemas.Item])
+@app.get("/data/", response_model=List[schemas.Item])
 def get_items(db: Session = Depends(get_db)):
     items = crud.get_items(db)
     return items
@@ -47,26 +46,27 @@ def add_new_item(
         body: Optional[str] = Form(),
         is_password_needed: Optional[bool] = Form(default=False),
         to_delete: Optional[bool] = Form(default=True),
+        files: list[UploadFile] = Form(default=[]),
         time_to_delete: Optional[datetime] = Body(default=datetime.now() + timedelta(days=3))):
 
     item = schemas.Item(
         uniq_id=uuid.uuid4().hex[:10].upper(),
         url=uuid.uuid4().hex[:10].upper(),
-        file_name="file",
         password=password,
         body=body,
         is_password_needed=is_password_needed,
         to_delete=to_delete,
         created=datetime.now(),
-        time_to_delete=datetime.now() + timedelta(days=3)
+        time_to_delete=datetime.now() + timedelta(days=3),
+        files = [file.filename for file in files]
     )
 
-    return crud.add_item(db=db, item=item)
+    return item
 
 
-@app.get("/data/{uniq_id}:{password}")
-def get_item(uniq_id: str, password: str, db: Session = Depends(get_db)):
-    item = crud.get_item(db, uniq_id=uniq_id, password=password)
+@app.get("/data/{id}:{password}")
+def get_item(id: str, password: str, db: Session = Depends(get_db)):
+    item = crud.get_item(db, id=id, password=password)
     return item
 
 

@@ -1,22 +1,23 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, lazyload, joinedload
+from models import Item
 
 import models
 import schemas
-import uuid
 
 
 def get_items(db: Session):
-    return db.query(models.Item).all()
+    return db.query(models.Item).options(joinedload(Item.files)).all()
 
 
-def get_item(db: Session, uniq_id, password):
-    return db.query(models.Item).filter_by(uniq_id=uniq_id, password=password).first()
+def get_files(db: Session):
+    return db.query(models.Files).all()
+
+def get_item(db: Session, id, password):
+    return db.query(models.Item).options(joinedload(Item.files)).filter_by(id=id, password=password).first()
 
 
 def add_item(db: Session, item: schemas.ItemCreate):
-    db_item = models.Item(**item.__dict__)
-    # db_item.url = url
-    # db_item.uniq_id = uniq_id
+    db_item = models.Item(**item.dict)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)

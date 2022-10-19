@@ -1,23 +1,29 @@
 from datetime import datetime
-from fastapi import Form
-import imp
-from sqlite3 import Timestamp
-from fastapi import Form
+import typing
 from pydantic import BaseModel
-from typing import Optional
-import uuid
+from typing import List, Optional
+
+
+class Files(BaseModel):
+    file_name: str
+
+    class Config:
+        orm_mode = True
 
 
 class Item(BaseModel):
-    uniq_id: str
+    id: int
     url: str
-    file_name: str
+    files: list[Files]
     password: str
     body: str
     is_password_needed: bool
     to_delete: bool
-    created: datetime
-    time_to_delete: datetime
+
+
+
+    class Config:
+        orm_mode = True
 
 
 class ItemBase(BaseModel):
@@ -31,6 +37,6 @@ class ItemBase(BaseModel):
 class ItemCreate(ItemBase):
     pass
 
-
     class Config:
         orm_mode = True
+
